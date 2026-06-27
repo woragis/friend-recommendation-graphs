@@ -98,8 +98,17 @@ Grupo isolado 2: Igor ↔ Juliana
 
 Requer **Java 16+** (o código do professor usa text blocks e `.toList()`).
 
+Se `javac` ou `java` não funcionarem, use o script (ele encontra o JDK 21 automaticamente):
+
 ```bash
 cd friend-recommendation-graphs
-javac *.java
-java Main
+chmod +x run.sh
+./run.sh
+```
+
+Ou manualmente com o JDK 21:
+
+```bash
+"/c/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac" *.java
+"/c/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/java" Main
 ```

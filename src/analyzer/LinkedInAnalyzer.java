@@ -25,25 +25,56 @@ public class LinkedInAnalyzer {
         this.grafo = grafo;
     }
 
-    public List<SugestaoConexao> sugerirConexoes(String nome) {
-        Vertice usuario = grafo.encontraVertice(nome).orElseThrow(
-                () -> new IllegalArgumentException("Usuário " + nome + " não encontrado na rede."));
+    public List<String> listarAmigos(String nome) {
+        Vertice usuario = buscarUsuario(nome);
+        List<String> amigos = new ArrayList<>();
+        for (Vertice amigo : usuario.getAdjacencias()) {
+            amigos.add(amigo.getNome());
+        }
+        amigos.sort(String::compareToIgnoreCase);
+        return amigos;
+    }
 
+    public List<String> listarPerfis() {
+        List<String> perfis = new ArrayList<>();
+        for (Vertice vertice : grafo.getVertices()) {
+            perfis.add(vertice.getNome());
+        }
+        perfis.sort(String::compareToIgnoreCase);
+        return perfis;
+    }
+
+    public List<SugestaoConexao> sugerirConexoes(String nome) {
+        Vertice usuario = buscarUsuario(nome);
         Set<Vertice> contatosDiretos = new HashSet<>(usuario.getAdjacencias());
-        Map<String, Integer> amigosEmComum = new HashMap<>();
+        Map<String, List<String>> amigosMutuosPorCandidato = new HashMap<>();
 
         for (Vertice amigo : contatosDiretos) {
             for (Vertice candidato : amigo.getAdjacencias()) {
                 if (candidato.equals(usuario) || contatosDiretos.contains(candidato)) {
                     continue;
                 }
-                amigosEmComum.merge(candidato.getNome(), 1, Integer::sum);
+                String nomeCandidato = candidato.getNome();
+                amigosMutuosPorCandidato
+                        .computeIfAbsent(nomeCandidato, chave -> new ArrayList<>())
+                        .add(amigo.getNome());
             }
         }
 
         List<SugestaoConexao> sugestoes = new ArrayList<>();
-        for (Map.Entry<String, Integer> entrada : amigosEmComum.entrySet()) {
-            sugestoes.add(new SugestaoConexao(entrada.getKey(), entrada.getValue()));
+        for (Map.Entry<String, List<String>> entrada : amigosMutuosPorCandidato.entrySet()) {
+            String nomeCandidato = entrada.getKey();
+            List<String> amigosMutuos = entrada.getValue();
+            amigosMutuos.sort(String::compareToIgnoreCase);
+
+            String amigoPonte = amigosMutuos.get(0);
+            String caminhoExemplo = nome + " -> " + amigoPonte + " -> " + nomeCandidato;
+
+            sugestoes.add(new SugestaoConexao(
+                    nomeCandidato,
+                    amigosMutuos.size(),
+                    amigosMutuos,
+                    caminhoExemplo));
         }
 
         sugestoes.sort(Comparator
@@ -54,16 +85,19 @@ public class LinkedInAnalyzer {
     }
 
     public int grauDeSeparacao(String origem, String destino) {
-        Vertice verticeOrigem = grafo.encontraVertice(origem).orElseThrow(
-                () -> new IllegalArgumentException("Vertice " + origem + " não encontrado."));
-        Vertice verticeDestino = grafo.encontraVertice(destino).orElseThrow(
-                () -> new IllegalArgumentException("Vertice " + destino + " não encontrado."));
+        return caminhoEmPassos(origem, destino).getPassos();
+    }
+
+    public ResultadoCaminho caminhoEmPassos(String origem, String destino) {
+        Vertice verticeOrigem = buscarUsuario(origem);
+        Vertice verticeDestino = buscarUsuario(destino);
 
         if (verticeOrigem.equals(verticeDestino)) {
-            return 0;
+            return new ResultadoCaminho(List.of(origem), 0);
         }
 
         Map<Vertice, Integer> distancias = new HashMap<>();
+        Map<Vertice, Vertice> anteriores = new HashMap<>();
         Queue<Vertice> fila = new LinkedList<>();
 
         for (Vertice vertice : grafo.getVertices()) {
@@ -77,18 +111,30 @@ public class LinkedInAnalyzer {
             Vertice atual = fila.poll();
 
             if (atual.equals(verticeDestino)) {
-                return distancias.get(atual);
+                break;
             }
 
             for (Vertice vizinho : atual.getAdjacencias()) {
                 if (distancias.get(vizinho) == -1) {
                     distancias.put(vizinho, distancias.get(atual) + 1);
+                    anteriores.put(vizinho, atual);
                     fila.add(vizinho);
                 }
             }
         }
 
-        return -1;
+        if (distancias.get(verticeDestino) == -1) {
+            return ResultadoCaminho.inalcancavel();
+        }
+
+        List<String> caminho = new ArrayList<>();
+        Vertice atual = verticeDestino;
+        while (atual != null) {
+            caminho.add(0, atual.getNome());
+            atual = anteriores.get(atual);
+        }
+
+        return new ResultadoCaminho(caminho, distancias.get(verticeDestino));
     }
 
     public ResultadoRota rotaDeMaiorAfinidade(String origem, String destino) {
@@ -114,5 +160,10 @@ public class LinkedInAnalyzer {
 
         componentes.sort(Comparator.comparing(grupo -> grupo.get(0)));
         return componentes;
+    }
+
+    private Vertice buscarUsuario(String nome) {
+        return grafo.encontraVertice(nome).orElseThrow(
+                () -> new IllegalArgumentException("Usuário " + nome + " não encontrado na rede."));
     }
 }

@@ -16,9 +16,11 @@ friend-recommendation-graphs/
 │   │   └── ResultadoRota.java
 │   ├── analyzer/        ← lógica da atividade
 │   │   ├── LinkedInAnalyzer.java
-│   │   └── SugestaoConexao.java
+│   │   ├── SugestaoConexao.java
+│   │   └── ResultadoCaminho.java
 │   └── app/             ← demonstração
-│       └── Main.java
+│       ├── Main.java
+│       └── RedeFactory.java
 ├── run.sh               ← compila e executa
 ├── README.md
 └── .gitignore
@@ -32,7 +34,9 @@ friend-recommendation-graphs/
 | `ResultadoRota.java` | `modelo` | Projeto | Caminho encontrado + custo acumulado |
 | `SugestaoConexao.java` | `analyzer` | Projeto | Nome sugerido + amigos em comum |
 | `LinkedInAnalyzer.java` | `analyzer` | Projeto | Cérebro das análises da atividade |
-| `Main.java` | `app` | Projeto | Demo com saída formatada para o vídeo |
+| `Main.java` | `app` | Projeto | Menu interativo no console |
+| `RedeFactory.java` | `app` | Projeto | Monta a rede com 25 perfis |
+| `ResultadoCaminho.java` | `analyzer` | Projeto | Caminho e passos do BFS |
 
 ### O que veio do professor
 
@@ -48,9 +52,22 @@ Todo o restante (`dfsIterativo`, `dfsRecursivo`, `greedySearch`, matrizes, etc.)
 ### O que é código do projeto
 
 - **`LinkedInAnalyzer`**: implementa as 5 missões da atividade
-- **`Main`**: monta a rede no `main`, executa todas as missões e imprime saída formatada para o vídeo
-- **`SugestaoConexao`**: estrutura de retorno da missão 2
+- **`Main`**: menu interativo — login, amigos, sugestões, grau de separação
+- **`RedeFactory`**: cadastra 25 perfis e suas conexões
+- **`SugestaoConexao`**: sugestão com amigos em comum e caminho exemplo
+- **`ResultadoCaminho`**: caminho completo retornado pelo BFS
 - **`ResultadoRota`**: estrutura de retorno da missão 4 (fica em `modelo` pois o `Grafo` também a usa)
+
+## Modo interativo
+
+Ao rodar `./run.sh`, você pode:
+
+1. **Entrar como usuário** — escolhe um dos 25 perfis
+2. **Ver amigos** — conexões diretas (1º grau)
+3. **Ver sugestões** — amigos de 2º grau, com amigos em comum e caminho `você -> amigo -> sugerido`
+4. **Grau de separação** — BFS mostra passos e caminho completo até qualquer perfil
+5. **Rota ponderada** — Dijkstra (missão 4 do enunciado, opcional no menu)
+6. **Grupos isolados** — componentes conexos da rede inteira
 
 ## As 5 missões
 
@@ -76,42 +93,14 @@ Usa o `dfsRecursivo` do professor para identificar componentes conexos — sub-r
 
 ## Rede de testes
 
-```
-Rede principal: Ana, Bruno, Carlos, Daniela, Eduardo, Fernanda
-Grupo isolado 1: Gabriel ↔ Hugo
-Grupo isolado 2: Igor ↔ Juliana
-```
+**25 perfis** organizados em:
 
-### Conexões e pesos
+- **Rede principal** (~19 perfis conectados): Ana, Bruno, Carlos, Daniela, Eduardo, Fernanda, Lucas, Marina, Pedro, Rafaela, Thiago, Vanessa, William, Beatriz, Caio, Diego, Elisa, Isabella...
+- **Grupo isolado 1:** Gabriel ↔ Hugo
+- **Grupo isolado 2:** Igor ↔ Juliana
+- **Grupo isolado 3:** Fabio ↔ Gabriela ↔ Henrique
 
-| Conexão | Peso |
-|---|---|
-| Ana ↔ Bruno | 1 |
-| Ana ↔ Carlos | 2 |
-| Ana ↔ Daniela | 8 |
-| Bruno ↔ Eduardo | 1 |
-| Carlos ↔ Eduardo | 1 |
-| Daniela ↔ Fernanda | 5 |
-| Eduardo ↔ Fernanda | 1 |
-| Gabriel ↔ Hugo | 1 |
-| Igor ↔ Juliana | 1 |
-
-### Resultados esperados
-
-**Sugestões para Ana:**
-- Eduardo (2 amigos em comum: Bruno e Carlos)
-- Fernanda (1 amigo em comum: Daniela)
-
-**Grau de separação Ana → Fernanda:** `2` passos
-
-**Rota de maior afinidade Ana → Fernanda:**
-- Caminho mais curto em passos: `Ana → Daniela → Fernanda` (custo 13)
-- Caminho de Dijkstra: `Ana → Bruno → Eduardo → Fernanda` (custo **3**)
-
-**Componentes conexos:**
-1. Ana, Bruno, Carlos, Daniela, Eduardo, Fernanda
-2. Gabriel, Hugo
-3. Igor, Juliana
+As conexões são cadastradas linha a linha em `RedeFactory.java`.
 
 ## Como executar
 

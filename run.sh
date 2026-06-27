@@ -44,12 +44,16 @@ if [[ "$OSTYPE" == msys* || "$OSTYPE" == cygwin* ]]; then
     JAVA="${JAVA}.exe"
 fi
 
+SOURCES=$(find src -name "*.java")
+
 echo "Usando JDK: $JAVA_HOME"
 echo
 echo "Compilando..."
-"$JAVAC" *.java
+rm -rf out
+mkdir -p out
+"$JAVAC" -d out $SOURCES
 
 echo
 echo "Executando Main..."
 echo
-"$JAVA" Main
+"$JAVA" -cp out app.Main

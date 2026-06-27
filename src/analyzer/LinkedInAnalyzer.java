@@ -1,3 +1,9 @@
+package analyzer;
+
+import modelo.Grafo;
+import modelo.ResultadoRota;
+import modelo.Vertice;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;

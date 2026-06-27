@@ -1,2 +1,3 @@
 # Bytecode compilado
+out/
 *.class

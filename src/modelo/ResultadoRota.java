@@ -1,3 +1,5 @@
+package modelo;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +14,7 @@ public class ResultadoRota {
         this.custo = custo;
     }
 
-    public static ResultadoRota inalcantravel() {
+    public static ResultadoRota inalcancavel() {
         return new ResultadoRota(Collections.emptyList(), -1);
     }
 

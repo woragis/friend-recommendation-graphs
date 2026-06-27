@@ -1,3 +1,10 @@
+package app;
+
+import analyzer.LinkedInAnalyzer;
+import analyzer.SugestaoConexao;
+import modelo.Grafo;
+import modelo.ResultadoRota;
+
 import java.util.List;
 
 public class Main {

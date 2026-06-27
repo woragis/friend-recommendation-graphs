@@ -1,3 +1,5 @@
+package analyzer;
+
 public class SugestaoConexao {
 
     private final String nome;

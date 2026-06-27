@@ -1,3 +1,5 @@
+package modelo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +12,7 @@ public class Vertice {
     private List<Vertice> adjacencias; //out
     private List<Vertice> adjacentes; //in
 
-    public Vertice (String nome) {
+    public Vertice(String nome) {
         this.nome = nome;
         adjacencias = new ArrayList<>();
         adjacentes = new ArrayList<>();

@@ -1,3 +1,5 @@
+package modelo;
+
 import javax.swing.*;
 import java.util.*;
 
@@ -171,7 +173,7 @@ public class Grafo {
         }
 
         if (distancias.get(verticeDestino) == Integer.MAX_VALUE) {
-            return ResultadoRota.inalcantravel();
+            return ResultadoRota.inalcancavel();
         }
 
         List<String> caminho = new ArrayList<>();

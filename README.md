@@ -2,19 +2,37 @@
 
 Projeto prático da disciplina de Grafos: um motor de análises e recomendações para uma rede de conexões profissionais.
 
-Os arquivos ficam todos na mesma pasta, sem projeto Maven/Gradle. Basta compilar e executar com o JDK.
+Os arquivos ficam organizados em pacotes dentro de `src/`, sem Maven/Gradle. Basta compilar e executar com o JDK.
 
-## Estrutura dos arquivos
+## Estrutura do projeto
 
-| Arquivo | Origem | Descrição |
-|---|---|---|
-| `Vertice.java` | Professor | Representa um perfil da rede |
-| `Aresta.java` | Professor | Representa uma conexão entre dois perfis |
-| `Grafo.java` | Professor + Dijkstra | Estrutura do grafo e algoritmos das aulas |
-| `SugestaoConexao.java` | Projeto | Nome sugerido + quantidade de amigos em comum |
-| `ResultadoRota.java` | Projeto | Caminho encontrado + custo acumulado |
-| `LinkedInAnalyzer.java` | Projeto | Cérebro das análises da atividade |
-| `Main.java` | Projeto | `main` com rede montada linha a linha e saída formatada para demo |
+```
+friend-recommendation-graphs/
+├── src/
+│   ├── modelo/          ← código do professor (grafo)
+│   │   ├── Vertice.java
+│   │   ├── Aresta.java
+│   │   ├── Grafo.java
+│   │   └── ResultadoRota.java
+│   ├── analyzer/        ← lógica da atividade
+│   │   ├── LinkedInAnalyzer.java
+│   │   └── SugestaoConexao.java
+│   └── app/             ← demonstração
+│       └── Main.java
+├── run.sh               ← compila e executa
+├── README.md
+└── .gitignore
+```
+
+| Arquivo | Pacote | Origem | Descrição |
+|---|---|---|---|
+| `Vertice.java` | `modelo` | Professor | Representa um perfil da rede |
+| `Aresta.java` | `modelo` | Professor | Representa uma conexão entre dois perfis |
+| `Grafo.java` | `modelo` | Professor + Dijkstra | Estrutura do grafo e algoritmos das aulas |
+| `ResultadoRota.java` | `modelo` | Projeto | Caminho encontrado + custo acumulado |
+| `SugestaoConexao.java` | `analyzer` | Projeto | Nome sugerido + amigos em comum |
+| `LinkedInAnalyzer.java` | `analyzer` | Projeto | Cérebro das análises da atividade |
+| `Main.java` | `app` | Projeto | Demo com saída formatada para o vídeo |
 
 ### O que veio do professor
 
@@ -31,7 +49,8 @@ Todo o restante (`dfsIterativo`, `dfsRecursivo`, `greedySearch`, matrizes, etc.)
 
 - **`LinkedInAnalyzer`**: implementa as 5 missões da atividade
 - **`Main`**: monta a rede no `main`, executa todas as missões e imprime saída formatada para o vídeo
-- **`SugestaoConexao`** e **`ResultadoRota`**: estruturas de retorno
+- **`SugestaoConexao`**: estrutura de retorno da missão 2
+- **`ResultadoRota`**: estrutura de retorno da missão 4 (fica em `modelo` pois o `Grafo` também a usa)
 
 ## As 5 missões
 
@@ -109,6 +128,6 @@ chmod +x run.sh
 Ou manualmente com o JDK 21:
 
 ```bash
-"/c/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac" *.java
-"/c/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/java" Main
+javac -d out $(find src -name "*.java")
+java -cp out app.Main
 ```

@@ -1,3 +1,5 @@
+package modelo;
+
 public class Aresta {
     private String nome;
     private Vertice verticeOrigem;

@@ -2,6 +2,7 @@
 package analyzer;
 
 import modelo.Grafo;
+import modelo.ResultadoRota;
 import modelo.Vertice;
 
 import java.util.ArrayList;
@@ -16,8 +17,8 @@ import java.util.Set;
 
 /**
  * Motor de análises da rede de amizades.
- * A partir das conexões entre usuários, lista amigos, sugere novas conexões
- * e calcula a distância em passos entre duas pessoas (BFS).
+ * A partir das conexões entre usuários, lista amigos, sugere novas conexões,
+ * calcula a distância em passos (BFS) e a rota de maior afinidade (Dijkstra).
  */
 public class LinkedInAnalyzer {
 
@@ -156,6 +157,14 @@ public class LinkedInAnalyzer {
         }
 
         return new ResultadoCaminho(caminho, distancias.get(verticeDestino));
+    }
+
+    /**
+     * Rota de maior afinidade: menor soma de pesos entre duas pessoas.
+     * Delega ao Dijkstra implementado na classe Grafo.
+     */
+    public ResultadoRota rotaDeMaiorAfinidade(String origem, String destino) {
+        return grafo.menorCaminhoPonderado(origem, destino);
     }
 
     private Vertice buscarUsuario(String nome) {

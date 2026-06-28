@@ -1,7 +1,6 @@
 // Pacote modelo: estrutura principal do grafo (código do professor + Dijkstra)
 package modelo;
 
-import javax.swing.*;
 import java.util.*;
 
 /**

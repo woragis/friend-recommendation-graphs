@@ -4,14 +4,15 @@ package app;
 import analyzer.LinkedInAnalyzer;
 import analyzer.ResultadoCaminho;
 import analyzer.SugestaoConexao;
+import modelo.ResultadoRota;
 
 import java.util.List;
 import java.util.Scanner;
 
 /**
  * Classe principal com o método main.
- * Carrega a rede de amizades e oferece um menu para explorar
- * amigos, sugestões e distância entre perfis.
+ * Carrega a rede de conexões e oferece um menu para explorar
+ * amigos, sugestões, distância em passos e rota ponderada.
  */
 public class Main {
 
@@ -49,7 +50,8 @@ public class Main {
                           1. Meus amigos
                           2. Sugestoes de conexao
                           3. Grau de separacao
-                          4. Trocar usuario
+                          4. Rota de maior afinidade (Dijkstra)
+                          5. Trocar usuario
                           0. Voltar ao menu principal
                         Escolha""".formatted(usuarioLogado));
 
@@ -57,7 +59,8 @@ public class Main {
                     case 1 -> exibirAmigos(analyzer, usuarioLogado);
                     case 2 -> exibirSugestoes(analyzer, usuarioLogado);
                     case 3 -> consultarGrauSeparacao(analyzer, usuarioLogado);
-                    case 4 -> usuarioLogado = fazerLogin(analyzer);
+                    case 4 -> consultarRotaPonderada(analyzer, usuarioLogado);
+                    case 5 -> usuarioLogado = fazerLogin(analyzer);
                     case 0 -> usuarioLogado = null;
                     default -> println("Opcao invalida.");
                 }
@@ -159,6 +162,27 @@ public class Main {
             println("\n  Destino       : " + destino);
             println("  Passos        : " + resultado.getPassos());
             println("  Caminho (BFS) : " + resultado.caminhoFormatado());
+        } catch (IllegalArgumentException e) {
+            println("  Perfil nao encontrado: " + destino);
+        }
+    }
+
+    private static void consultarRotaPonderada(LinkedInAnalyzer analyzer, String usuario) {
+        secao("ROTA DE MAIOR AFINIDADE - " + usuario);
+        print("Ate qual perfil? ");
+        String destino = ENTRADA.nextLine().trim();
+
+        try {
+            ResultadoRota rota = analyzer.rotaDeMaiorAfinidade(usuario, destino);
+
+            if (!rota.eAlcancavel()) {
+                println("\n  Sem rota entre " + usuario + " e " + destino + ".");
+                return;
+            }
+
+            println("\n  Caminho otimo : " + String.join(" -> ", rota.getCaminho()));
+            println("  Custo total   : " + rota.getCusto());
+            println("  (Menor custo = maior afinidade entre as conexoes)");
         } catch (IllegalArgumentException e) {
             println("  Perfil nao encontrado: " + destino);
         }

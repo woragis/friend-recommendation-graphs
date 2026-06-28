@@ -2,8 +2,8 @@
 package modelo;
 
 /**
- * Representa uma ARESTA do grafo — uma amizade entre dois perfis.
- * No projeto, as amizades são cadastradas apenas com os nomes dos usuários.
+ * Representa uma ARESTA do grafo — uma conexão entre dois perfis.
+ * O peso representa a afinidade: 1 = muita proximidade, 5+ = pouca interação.
  */
 public class Aresta {
 

@@ -1,8 +1,11 @@
 # LinkedIn Analyzer
 
-Projeto prático da disciplina de Grafos: um motor de recomendações baseado em **amizades** entre usuários.
+Projeto prático da disciplina de Grafos: motor de recomendações para uma rede de conexões profissionais.
 
-Cada usuário é um vértice e cada amizade é uma aresta — cadastrada apenas com os nomes dos dois perfis, sem peso.
+A rede é modelada como um **grafo não-direcionado e ponderado**:
+- **Vértices** = perfis dos usuários
+- **Arestas** = conexões de amizade ou trabalho (bidirecionais)
+- **Pesos** = afinidade entre as pessoas (1 = muita proximidade, 5+ = pouca)
 
 ## Estrutura do projeto
 
@@ -29,59 +32,71 @@ friend-recommendation-graphs/
 | Arquivo | Descrição |
 |---|---|
 | `Vertice.java` | Representa um perfil da rede |
-| `Aresta.java` | Representa uma amizade entre dois perfis |
-| `Grafo.java` | Estrutura do grafo e algoritmos das aulas |
-| `LinkedInAnalyzer.java` | Amigos, sugestões e grau de separação |
+| `Aresta.java` | Conexão entre dois perfis com peso de afinidade |
+| `Grafo.java` | Estrutura do grafo, BFS/DFS e Dijkstra |
+| `LinkedInAnalyzer.java` | Amigos, sugestões, BFS e rota ponderada |
 | `SugestaoConexao.java` | Candidato sugerido + amigos em comum |
 | `ResultadoCaminho.java` | Caminho e passos retornados pelo BFS |
+| `ResultadoRota.java` | Caminho e custo retornados pelo Dijkstra |
 | `Main.java` | Menu interativo no console |
-| `RedeFactory.java` | Cadastra perfis e amizades |
+| `RedeFactory.java` | Cadastra perfis e conexões com peso |
 
 ## Modo interativo
 
 Ao rodar `./run.sh`:
 
 1. **Entrar como usuário** — escolhe um dos perfis
-2. **Ver amigos** — amizades diretas (1º grau)
+2. **Ver amigos** — conexões diretas (1º grau)
 3. **Ver sugestões** — amigos de amigos, ordenados por amigos em comum
-4. **Grau de separação** — BFS mostra passos e caminho de amizades até outro perfil
+4. **Grau de separação** — BFS: menor número de passos até outro perfil
+5. **Rota de maior afinidade** — Dijkstra: caminho de menor custo (maior proximidade)
 
 ## Funcionalidades
 
-### Construtor
-
-Recebe o `Grafo` de amizades e o guarda para as análises.
-
 ### Sugestão de conexões (`sugerirConexoes`)
 
-A partir das amizades do usuário, encontra pessoas a 2 passos que ainda não são amigo direto. Ordena por quantidade de amigos em comum.
+A partir das conexões do usuário, encontra pessoas a 2 passos que ainda não são contato direto. Ordena por amigos em comum. **Não usa peso.**
 
 ### Grau de separação (`grauDeSeparacao` / `caminhoEmPassos`)
 
-Usa **BFS** para encontrar o menor número de passos de amizade entre duas pessoas. Retorna `-1` se não houver caminho.
+**BFS** — menor número de passos entre duas pessoas. Ignora pesos.
+
+### Rota de maior afinidade (`rotaDeMaiorAfinidade`)
+
+**Dijkstra** — caminho de menor soma de pesos (maior afinidade acumulada).
+
+**Exemplo didático (Ana → Fernanda):**
+- BFS: 2 passos — `Ana → Daniela → Fernanda`
+- Dijkstra: custo 3 — `Ana → Bruno → Eduardo → Fernanda` (em vez de custo 13 pelo caminho mais curto em passos)
 
 ## Rede de testes
 
-**10 perfis** conectados por amizades em uma única rede:
+**10 perfis** em uma única rede conectada:
 
 Ana, Bruno, Carlos, Daniela, Eduardo, Fernanda, Gabriel, Hugo, Igor, Juliana.
 
-As amizades são cadastradas em `RedeFactory.java`:
-
 ```java
-rede.addAresta("Ana", "Bruno");
-rede.addAresta("Ana", "Carlos");
+rede.addAresta("Ana", "Bruno", 1);
+rede.addAresta("Ana", "Daniela", 8);  // pouca afinidade
 // ...
 ```
 
 ## Como executar
 
-Requer **Java 16+**.
+Requer **Java 16+** (JDK, não só JRE).
+
+**Git Bash / Linux / macOS:**
 
 ```bash
 cd friend-recommendation-graphs
 chmod +x run.sh
 ./run.sh
+```
+
+**Windows (CMD):**
+
+```bat
+run.bat
 ```
 
 Ou manualmente:

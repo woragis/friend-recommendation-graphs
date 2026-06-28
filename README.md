@@ -1,8 +1,8 @@
 # LinkedIn Analyzer
 
-Projeto prático da disciplina de Grafos: um motor de análises e recomendações para uma rede de conexões profissionais.
+Projeto prático da disciplina de Grafos: um motor de recomendações baseado em **amizades** entre usuários.
 
-Os arquivos ficam organizados em pacotes dentro de `src/`, sem Maven/Gradle. Basta compilar e executar com o JDK.
+Cada usuário é um vértice e cada amizade é uma aresta — cadastrada apenas com os nomes dos dois perfis, sem peso.
 
 ## Estrutura do projeto
 
@@ -18,95 +18,65 @@ friend-recommendation-graphs/
 │   │   ├── LinkedInAnalyzer.java
 │   │   ├── SugestaoConexao.java
 │   │   └── ResultadoCaminho.java
-│   └── app/             ← demonstração
+│   └── app/
 │       ├── Main.java
 │       └── RedeFactory.java
-├── run.sh               ← compila e executa
+├── run.sh
 ├── README.md
 └── .gitignore
 ```
 
-| Arquivo | Pacote | Origem | Descrição |
-|---|---|---|---|
-| `Vertice.java` | `modelo` | Professor | Representa um perfil da rede |
-| `Aresta.java` | `modelo` | Professor | Representa uma conexão entre dois perfis |
-| `Grafo.java` | `modelo` | Professor + Dijkstra | Estrutura do grafo e algoritmos das aulas |
-| `ResultadoRota.java` | `modelo` | Projeto | Caminho encontrado + custo acumulado |
-| `SugestaoConexao.java` | `analyzer` | Projeto | Nome sugerido + amigos em comum |
-| `LinkedInAnalyzer.java` | `analyzer` | Projeto | Cérebro das análises da atividade |
-| `Main.java` | `app` | Projeto | Menu interativo no console |
-| `RedeFactory.java` | `app` | Projeto | Monta a rede com 25 perfis |
-| `ResultadoCaminho.java` | `analyzer` | Projeto | Caminho e passos do BFS |
-
-### O que veio do professor
-
-`Vertice`, `Aresta` e quase todo o `Grafo` foram copiados do repositório `grafos_2026.1`. A única diferença é que o Lombok foi substituído por getters manuais, já que aqui não há dependências externas.
-
-No `Grafo`, o bloco marcado com comentários é o único código novo:
-
-- `getVertices()` — necessário para varrer toda a rede
-- `menorCaminhoPonderado()` — implementação do algoritmo de **Dijkstra**
-
-Todo o restante (`dfsIterativo`, `dfsRecursivo`, `greedySearch`, matrizes, etc.) permanece igual ao material das aulas.
-
-### O que é código do projeto
-
-- **`LinkedInAnalyzer`**: implementa as 5 missões da atividade
-- **`Main`**: menu interativo — login, amigos, sugestões, grau de separação
-- **`RedeFactory`**: cadastra 25 perfis e suas conexões
-- **`SugestaoConexao`**: sugestão com amigos em comum e caminho exemplo
-- **`ResultadoCaminho`**: caminho completo retornado pelo BFS
-- **`ResultadoRota`**: estrutura de retorno da missão 4 (fica em `modelo` pois o `Grafo` também a usa)
+| Arquivo | Descrição |
+|---|---|
+| `Vertice.java` | Representa um perfil da rede |
+| `Aresta.java` | Representa uma amizade entre dois perfis |
+| `Grafo.java` | Estrutura do grafo e algoritmos das aulas |
+| `LinkedInAnalyzer.java` | Amigos, sugestões e grau de separação |
+| `SugestaoConexao.java` | Candidato sugerido + amigos em comum |
+| `ResultadoCaminho.java` | Caminho e passos retornados pelo BFS |
+| `Main.java` | Menu interativo no console |
+| `RedeFactory.java` | Cadastra perfis e amizades |
 
 ## Modo interativo
 
-Ao rodar `./run.sh`, você pode:
+Ao rodar `./run.sh`:
 
-1. **Entrar como usuário** — escolhe um dos 25 perfis
-2. **Ver amigos** — conexões diretas (1º grau)
-3. **Ver sugestões** — amigos de 2º grau, com amigos em comum e caminho `você -> amigo -> sugerido`
-4. **Grau de separação** — BFS mostra passos e caminho completo até qualquer perfil
-5. **Rota ponderada** — Dijkstra (missão 4 do enunciado, opcional no menu)
-6. **Grupos isolados** — componentes conexos da rede inteira
+1. **Entrar como usuário** — escolhe um dos perfis
+2. **Ver amigos** — amizades diretas (1º grau)
+3. **Ver sugestões** — amigos de amigos, ordenados por amigos em comum
+4. **Grau de separação** — BFS mostra passos e caminho de amizades até outro perfil
 
-## As 5 missões
+## Funcionalidades
 
-### 1. Construtor
+### Construtor
 
-Recebe a instância do `Grafo` e a guarda para as demais análises.
+Recebe o `Grafo` de amizades e o guarda para as análises.
 
-### 2. Sugestão de conexões (`sugerirConexoes`)
+### Sugestão de conexões (`sugerirConexoes`)
 
-Para um usuário, encontra pessoas de 2º grau (amigos de amigos) que ainda não são contato direto. A lista vem ordenada por quantidade de amigos em comum, do maior para o menor.
+A partir das amizades do usuário, encontra pessoas a 2 passos que ainda não são amigo direto. Ordena por quantidade de amigos em comum.
 
-### 3. Grau de separação (`grauDeSeparacao`)
+### Grau de separação (`grauDeSeparacao` / `caminhoEmPassos`)
 
-Usa **BFS** (busca em largura) para encontrar o menor número de passos entre duas pessoas. Retorna `-1` se não houver conexão.
-
-### 4. Rota de maior afinidade (`rotaDeMaiorAfinidade`)
-
-Delega ao **Dijkstra** do `Grafo` para encontrar o caminho de menor custo (maior afinidade). Retorna o caminho e a soma dos pesos.
-
-### 5. Grupos isolados (`mapearGruposIsolados`)
-
-Usa o `dfsRecursivo` do professor para identificar componentes conexos — sub-redes que não se comunicam entre si.
+Usa **BFS** para encontrar o menor número de passos de amizade entre duas pessoas. Retorna `-1` se não houver caminho.
 
 ## Rede de testes
 
-**25 perfis** organizados em:
+**10 perfis** conectados por amizades em uma única rede:
 
-- **Rede principal** (~19 perfis conectados): Ana, Bruno, Carlos, Daniela, Eduardo, Fernanda, Lucas, Marina, Pedro, Rafaela, Thiago, Vanessa, William, Beatriz, Caio, Diego, Elisa, Isabella...
-- **Grupo isolado 1:** Gabriel ↔ Hugo
-- **Grupo isolado 2:** Igor ↔ Juliana
-- **Grupo isolado 3:** Fabio ↔ Gabriela ↔ Henrique
+Ana, Bruno, Carlos, Daniela, Eduardo, Fernanda, Gabriel, Hugo, Igor, Juliana.
 
-As conexões são cadastradas linha a linha em `RedeFactory.java`.
+As amizades são cadastradas em `RedeFactory.java`:
+
+```java
+rede.addAresta("Ana", "Bruno");
+rede.addAresta("Ana", "Carlos");
+// ...
+```
 
 ## Como executar
 
-Requer **Java 16+** (o código do professor usa text blocks e `.toList()`).
-
-Se `javac` ou `java` não funcionarem, use o script (ele encontra o JDK 21 automaticamente):
+Requer **Java 16+**.
 
 ```bash
 cd friend-recommendation-graphs
@@ -114,7 +84,7 @@ chmod +x run.sh
 ./run.sh
 ```
 
-Ou manualmente com o JDK 21:
+Ou manualmente:
 
 ```bash
 javac -d out $(find src -name "*.java")

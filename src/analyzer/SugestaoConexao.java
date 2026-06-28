@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Classe de retorno da Missão 2 (sugestão de conexões).
- * Guarda quem foi sugerido, quantos amigos em comum existem,
- * quais são esses amigos e um caminho exemplo de 2 passos.
+ * Classe de retorno da sugestão de conexões.
+ * Guarda quem foi sugerido, quantos amigos em comum existem
+ * e um caminho de amizades de 2 passos até o candidato.
  */
 public class SugestaoConexao {
 

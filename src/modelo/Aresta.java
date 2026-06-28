@@ -2,9 +2,8 @@
 package modelo;
 
 /**
- * Representa uma ARESTA do grafo.
- * No LinkedIn Analyzer, cada aresta é uma conexão entre dois perfis.
- * Pode ter um peso que representa a afinidade entre as pessoas.
+ * Representa uma ARESTA do grafo — uma amizade entre dois perfis.
+ * No projeto, as amizades são cadastradas apenas com os nomes dos usuários.
  */
 public class Aresta {
 

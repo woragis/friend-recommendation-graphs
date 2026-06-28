@@ -6,9 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Resultado do BFS (Missão 3 com caminho).
- * Diferente do grauDeSeparacao que retorna só o número,
- * esta classe guarda a sequência de nomes percorrida.
+ * Resultado do BFS: caminho de amizades entre dois perfis.
+ * Guarda a sequência de nomes e o número de passos.
  */
 public class ResultadoCaminho {
 

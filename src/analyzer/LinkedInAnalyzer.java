@@ -1,8 +1,7 @@
-// Pacote analyzer: implementa as 5 missões da atividade
+// Pacote analyzer: análises e recomendações sobre amizades
 package analyzer;
 
 import modelo.Grafo;
-import modelo.ResultadoRota;
 import modelo.Vertice;
 
 import java.util.ArrayList;
@@ -16,23 +15,16 @@ import java.util.Queue;
 import java.util.Set;
 
 /**
- * Cérebro das análises do LinkedIn Analyzer.
- * Implementa as 5 missões do projeto prático:
- * 1. Construtor (recebe o grafo)
- * 2. Sugestão de conexões (amigos de 2º grau)
- * 3. Grau de separação (BFS)
- * 4. Rota de maior afinidade (Dijkstra via Grafo)
- * 5. Grupos isolados (componentes conexos via DFS)
+ * Motor de análises da rede de amizades.
+ * A partir das conexões entre usuários, lista amigos, sugere novas conexões
+ * e calcula a distância em passos entre duas pessoas (BFS).
  */
 public class LinkedInAnalyzer {
 
-    // Referência ao grafo da rede social (guardada no construtor - Missão 1)
+    // Grafo de amizades recebido no construtor
     private final Grafo grafo;
 
-    /**
-     * MISSÃO 1 - Construtor da Análise.
-     * Recebe a instância do Grafo e a guarda para as demais missões.
-     */
+    /** Recebe o grafo de amizades para realizar as análises. */
     public LinkedInAnalyzer(Grafo grafo) {
         if (grafo == null) {
             throw new IllegalArgumentException("O grafo não pode ser nulo.");
@@ -62,19 +54,18 @@ public class LinkedInAnalyzer {
     }
 
     /**
-     * MISSÃO 2 - Sugestão de Conexões (Amigos de 2º Grau).
-     * Encontra pessoas que são amigas de amigas, mas ainda não são contato direto.
+     * Sugestão de conexões a partir das amizades existentes.
+     * Encontra pessoas a 2 passos (amigos de amigos) que ainda não são amigo direto.
      * Ordena por quantidade de amigos em comum (decrescente).
      */
     public List<SugestaoConexao> sugerirConexoes(String nome) {
         Vertice usuario = buscarUsuario(nome);
-        Set<Vertice> contatosDiretos = new HashSet<>(usuario.getAdjacencias());
+        Set<Vertice> amigosDiretos = new HashSet<>(usuario.getAdjacencias());
         Map<String, List<String>> amigosMutuosPorCandidato = new HashMap<>();
 
-        for (Vertice amigo : contatosDiretos) {
+        for (Vertice amigo : amigosDiretos) {
             for (Vertice candidato : amigo.getAdjacencias()) {
-                // Não sugerir o próprio usuário nem quem já é amigo direto
-                if (candidato.equals(usuario) || contatosDiretos.contains(candidato)) {
+                if (candidato.equals(usuario) || amigosDiretos.contains(candidato)) {
                     continue;
                 }
                 String nomeCandidato = candidato.getNome();
@@ -90,7 +81,6 @@ public class LinkedInAnalyzer {
             List<String> amigosMutuos = entrada.getValue();
             amigosMutuos.sort(String::compareToIgnoreCase);
 
-            // Caminho exemplo: usuário -> primeiro amigo em comum -> candidato
             String amigoPonte = amigosMutuos.get(0);
             String caminhoExemplo = nome + " -> " + amigoPonte + " -> " + nomeCandidato;
 
@@ -109,16 +99,15 @@ public class LinkedInAnalyzer {
     }
 
     /**
-     * MISSÃO 3 - Grau de Separação (apenas o número de passos).
-     * Delega ao BFS de caminhoEmPassos.
+     * Retorna o grau de separação (número de passos de amizade) entre duas pessoas.
+     * Usa BFS; retorna -1 se não houver caminho.
      */
     public int grauDeSeparacao(String origem, String destino) {
         return caminhoEmPassos(origem, destino).getPassos();
     }
 
     /**
-     * BFS que retorna o caminho completo e o número de passos entre duas pessoas.
-     * Usado no menu interativo para mostrar como o algoritmo chegou no destino.
+     * BFS que retorna o caminho de amizades e o número de passos entre duas pessoas.
      */
     public ResultadoCaminho caminhoEmPassos(String origem, String destino) {
         Vertice verticeOrigem = buscarUsuario(origem);
@@ -128,13 +117,10 @@ public class LinkedInAnalyzer {
             return new ResultadoCaminho(List.of(origem), 0);
         }
 
-        // distancias: passos do origem até cada vértice (-1 = ainda não visitado)
         Map<Vertice, Integer> distancias = new HashMap<>();
-        // anteriores: de qual vértice viemos (para reconstruir o caminho)
         Map<Vertice, Vertice> anteriores = new HashMap<>();
         Queue<Vertice> fila = new LinkedList<>();
 
-        // Inicializa todos como não visitados
         for (Vertice vertice : grafo.getVertices()) {
             distancias.put(vertice, -1);
         }
@@ -162,7 +148,6 @@ public class LinkedInAnalyzer {
             return ResultadoCaminho.inalcancavel();
         }
 
-        // Reconstrói o caminho de trás para frente
         List<String> caminho = new ArrayList<>();
         Vertice atual = verticeDestino;
         while (atual != null) {
@@ -173,40 +158,6 @@ public class LinkedInAnalyzer {
         return new ResultadoCaminho(caminho, distancias.get(verticeDestino));
     }
 
-    /**
-     * MISSÃO 4 - Rota de Maior Afinidade.
-     * Delega ao Dijkstra implementado na classe Grafo.
-     */
-    public ResultadoRota rotaDeMaiorAfinidade(String origem, String destino) {
-        return grafo.menorCaminhoPonderado(origem, destino);
-    }
-
-    /**
-     * MISSÃO 5 - Mapear Grupos Isolados (Componentes Conexos).
-     * Usa o DFS recursivo do professor para explorar cada sub-rede.
-     */
-    public List<List<String>> mapearGruposIsolados() {
-        Set<String> visitadosGlobal = new HashSet<>();
-        List<List<String>> componentes = new ArrayList<>();
-
-        for (Vertice vertice : grafo.getVertices()) {
-            if (visitadosGlobal.contains(vertice.getNome())) {
-                continue;
-            }
-
-            List<String> grupo = grafo.dfsRecursivo(vertice.getNome(), null, new ArrayList<>());
-            visitadosGlobal.addAll(grupo);
-
-            List<String> grupoOrdenado = new ArrayList<>(grupo);
-            grupoOrdenado.sort(String::compareToIgnoreCase);
-            componentes.add(grupoOrdenado);
-        }
-
-        componentes.sort(Comparator.comparing(grupo -> grupo.get(0)));
-        return componentes;
-    }
-
-    /** Localiza um vértice pelo nome ou lança exceção se o perfil não existir. */
     private Vertice buscarUsuario(String nome) {
         return grafo.encontraVertice(nome).orElseThrow(
                 () -> new IllegalArgumentException("Usuário " + nome + " não encontrado na rede."));
